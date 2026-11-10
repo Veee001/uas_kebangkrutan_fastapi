@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediksi Kebangkrutan - FinRisk AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav>
+        <div class="logo"><i class="fa-solid fa-chart-line"></i> FinRisk AI <span>| MLP Neural Network</span></div>
+        <ul>
+            <li><a href="/"><i class="fa-solid fa-house"></i> Home</a></li>
+            <li><a href="/predict" class="active"><i class="fa-solid fa-robot"></i> Prediksi</a></li>
+            <li><a href="/contact"><i class="fa-solid fa-envelope"></i> Contact Us</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        {% if db_error %}
+        <div class="alert-error">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.5rem;"></i>
+            <span><strong>Peringatan Database:</strong> {{ db_error }}</span>
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <div class="card-header-flex">
+                <h2><i class="fa-solid fa-calculator"></i> Input Rasio Keuangan Perusahaan</h2>
+                <div class="preset-buttons">
+                    <button type="button" class="btn-preset-good" onclick="fillHealthySample()"><i class="fa-solid fa-check-circle"></i> Contoh Sehat</button>
+                    <button type="button" class="btn-preset-bad" onclick="fillBankruptSample()"><i class="fa-solid fa-times-circle"></i> Contoh Bangkrut</button>
+                </div>
+            </div>
+            <p style="color: #64748b; margin-bottom: 25px;">Masukkan nilai rasio keuangan (skala terstandarisasi 0.000 - 1.000) atau gunakan tombol contoh di atas.</p>
+
+            <form action="/predict" method="post" class="grid-form" id="predictionForm">
+                <div class="form-group full-width">
+                    <label>Nama Perusahaan yang Diaudit:</label>
+                    <input type="text" id="nama_perusahaan" name="nama_perusahaan" placeholder="Contoh: PT Maju Jaya Korporindo Tbk" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>1. ROA(C) before int. & dep:</label>
+                    <input type="number" step="any" id="roa_c" name="roa_c" value="0.5250" required>
+                </div>
+                <div class="form-group">
+                    <label>2. Net Income to Total Assets:</label>
+                    <input type="number" step="any" id="net_income_to_assets" name="net_income_to_assets" value="0.8210" required>
+                </div>
+                <div class="form-group">
+                    <label>3. Debt Ratio %:</label>
+                    <input type="number" step="any" id="debt_ratio" name="debt_ratio" value="0.0950" required>
+                </div>
+                <div class="form-group">
+                    <label>4. Net Worth / Assets:</label>
+                    <input type="number" step="any" id="net_worth_to_assets" name="net_worth_to_assets" value="0.9050" required>
+                </div>
+                <div class="form-group">
+                    <label>5. Current Ratio:</label>
+                    <input type="number" step="any" id="current_ratio" name="current_ratio" value="0.0155" required>
+                </div>
+                <div class="form-group">
+                    <label>6. Quick Ratio:</label>
+                    <input type="number" step="any" id="quick_ratio" name="quick_ratio" value="0.0105" required>
+                </div>
+                <div class="form-group">
+                    <label>7. Operating Gross Margin:</label>
+                    <input type="number" step="any" id="operating_gross_margin" name="operating_gross_margin" value="0.6120" required>
+                </div>
+                <div class="form-group">
+                    <label>8. Cash Flow to Total Assets:</label>
+                    <input type="number" step="any" id="cash_flow_to_assets" name="cash_flow_to_assets" value="0.6510" required>
+                </div>
+                <div class="form-group full-width" style="margin-top: 10px;">
+                    <button type="submit" class="btn-submit"><i class="fa-solid fa-microchip"></i> Proses Prediksi MLP & Simpan AI</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="card-header-flex">
+                <h2><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Hasil Pemrosesan AI</h2>
+                <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Cari nama perusahaan..." class="search-box">
+            </div>
+
+            <div class="table-wrapper">
+                <table id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nama Perusahaan</th>
+                            <th>ROA(C)</th>
+                            <th>Net Inc/Ast</th>
+                            <th>Debt Rto</th>
+                            <th>Net Wrt/Ast</th>
+                            <th>Cur Rto</th>
+                            <th>Cash Flw</th>
+                            <th>Status AI</th>
+                            <th>Risiko</th>
+                            <th>Waktu Input</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in riwayat %}
+                        <tr>
+                            <td style="color:#64748b;">#{{ row.id }}</td>
+                            <td><strong>{{ row.nama_perusahaan }}</strong></td>
+                            <td>{{ row.roa_c }}</td>
+                            <td>{{ row.net_income_to_assets }}</td>
+                            <td>{{ row.debt_ratio }}</td>
+                            <td>{{ row.net_worth_to_assets }}</td>
+                            <td>{{ row.current_ratio }}</td>
+                            <td>{{ row.cash_flow_to_assets }}</td>
+                            <td>
+                                {% if row.prediksi_label == 1 %}
+                                    <span class="badge-danger"><i class="fa-solid fa-circle-exclamation"></i> {{ row.status_prediksi }}</span>
+                                {% else %}
+                                    <span class="badge-success"><i class="fa-solid fa-shield-check"></i> {{ row.status_prediksi }}</span>
+                                {% endif %}
+                            </td>
+                            <td><strong>{{ row.probabilitas_bangkrut }}%</strong></td>
+                            <td style="font-size: 0.8rem; color: #64748b;">{{ row.waktu_input }}</td>
+                            <td>
+                                <form action="/delete/{{ row.id }}" method="post" onsubmit="return confirmDelete('{{ row.nama_perusahaan }}');">
+                                    <button type="submit" class="btn-delete"><i class="fa-solid fa-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="12" style="text-align:center; padding: 30px; color:#94a3b8;">
+                                <i class="fa-solid fa-folder-open" style="font-size:2rem; margin-bottom:10px; display:block;"></i>
+                                Belum ada data prediksi tersimpan di database.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+</html>

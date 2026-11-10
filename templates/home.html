@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - FinRisk AI (Prediksi Kebangkrutan Perusahaan)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav>
+        <div class="logo"><i class="fa-solid fa-chart-line"></i> FinRisk AI <span>| MLP Neural Network</span></div>
+        <ul>
+            <li><a href="/" class="active"><i class="fa-solid fa-house"></i> Home</a></li>
+            <li><a href="/predict"><i class="fa-solid fa-robot"></i> Prediksi</a></li>
+            <li><a href="/contact"><i class="fa-solid fa-envelope"></i> Contact Us</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="hero-card">
+            <span class="badge-pill"><i class="fa-solid fa-briefcase"></i> Bidang Studi Kasus: Bisnis</span>
+            <h1>Sistem Deteksi Dini Kebangkrutan Perusahaan Berbasis MLP</h1>
+            <p>Integrasi Model Jaringan Saraf Tiruan (Artificial Neural Network) dengan FastAPI, Jinja2, dan Database MySQL untuk Evaluasi Risiko Finansial Korporasi secara Instan & Presisi.</p>
+            <a href="/predict" class="btn-cta"><i class="fa-solid fa-bolt"></i> Coba Simulasi Prediksi Sekarang</a>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-box">
+                <i class="fa-solid fa-bullseye metric-icon"></i>
+                <span class="metric-title">Accuracy</span>
+                <span class="metric-value">{{ metrics.accuracy }}%</span>
+                <span class="metric-title" style="font-size:0.75rem; text-transform:none;">Ketepatan Keseluruhan</span>
+            </div>
+            <div class="metric-box">
+                <i class="fa-solid fa-microscope metric-icon"></i>
+                <span class="metric-title">Precision</span>
+                <span class="metric-value">{{ metrics.precision }}%</span>
+                <span class="metric-title" style="font-size:0.75rem; text-transform:none;">Ketepatan Deteksi Bangkrut</span>
+            </div>
+            <div class="metric-box">
+                <i class="fa-solid fa-radar-indicator metric-icon"></i>
+                <span class="metric-title">Recall</span>
+                <span class="metric-value">{{ metrics.recall }}%</span>
+                <span class="metric-title" style="font-size:0.75rem; text-transform:none;">Sensitivitas Deteksi Risiko</span>
+            </div>
+            <div class="metric-box">
+                <i class="fa-solid fa-star-half-stroke metric-icon"></i>
+                <span class="metric-title">F1-Score</span>
+                <span class="metric-value">{{ metrics.f1_score }}%</span>
+                <span class="metric-title" style="font-size:0.75rem; text-transform:none;">Harmonic Mean</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><i class="fa-solid fa-circle-info text-primary"></i> 1. Tujuan Website & Identifikasi Masalah</h2>
+            <p>Kebangkrutan korporasi menimbulkan kerugian sistemik bagi investor, perbankan, dan kreditur. Risiko kebangkrutan sebuah perusahaan tidak dapat diukur hanya dari satu indikator tunggal—perusahaan dengan pendapatan tinggi tetap dapat bangkrut apabila memiliki rasio utang (<em>Debt Ratio</em>) yang membengkak dan arus kas (<em>Cash Flow</em>) yang macet.</p>
+            <p>Website ini dibangun sebagai <strong>Decision Support System (Sistem Pendukung Keputusan)</strong> untuk memprediksi probabilitas kebangkrutan perusahaan secara instan berdasarkan interaksi 8 rasio keuangan utama serta mendokumentasikan riwayat auditnya ke dalam database MySQL.</p>
+        </div>
+
+        <div class="card">
+            <h2><i class="fa-solid fa-database text-primary"></i> 2. Informasi Dataset (Company Bankruptcy)</h2>
+            <p>Dataset mengacu pada <strong>Company Bankruptcy Prediction Dataset (Taiwan Economic Journal)</strong> dari repositori Kaggle dengan total sampel pengujian <strong>{{ metrics.total_data }} perusahaan</strong> ({{ metrics.train_size }} data latih dan {{ metrics.test_size }} data uji). 8 rasio finansial paling krusial meliputi:</p>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Fitur / Rasio Keuangan</th>
+                            <th>Kategori Pilar</th>
+                            <th>Penjelasan Indikator</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td><strong>ROA(C) before interest & dep.</strong></td><td>Profitabilitas</td><td>Efisiensi aset menghasilkan laba sebelum bunga.</td></tr>
+                        <tr><td>2</td><td><strong>Net Income to Total Assets</strong></td><td>Profitabilitas</td><td>Rasio laba bersih terhadap total aset.</td></tr>
+                        <tr><td>3</td><td><strong>Debt Ratio %</strong></td><td>Solvabilitas</td><td>Persentase total utang terhadap total aset.</td></tr>
+                        <tr><td>4</td><td><strong>Net Worth / Assets</strong></td><td>Solvabilitas</td><td>Proporsi kekayaan bersih terhadap keseluruhan aset.</td></tr>
+                        <tr><td>5</td><td><strong>Current Ratio</strong></td><td>Likuiditas</td><td>Kemampuan aset lancar menutup utang jangka pendek.</td></tr>
+                        <tr><td>6</td><td><strong>Quick Ratio</strong></td><td>Likuiditas Ketat</td><td>Kemampuan aset sangat cair membayar utang.</td></tr>
+                        <tr><td>7</td><td><strong>Operating Gross Margin</strong></td><td>Efisiensi Ops</td><td>Persentase margin laba kotor dari bisnis utama.</td></tr>
+                        <tr><td>8</td><td><strong>Cash Flow to Total Assets</strong></td><td>Arus Kas</td><td>Rasio uang kas riil terhadap total aset.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><i class="fa-solid fa-network-wired text-primary"></i> 3. Detail Model AI: Multi-Layer Perceptron</h2>
+            <p>Sistem menggunakan algoritma <strong>Multi-Layer Perceptron (MLP)</strong> (Feedforward Artificial Neural Network) dengan spesifikasi:</p>
+            <ul style="margin-left: 20px; color: #475569;">
+                <li><strong>Tahap Preprocessing:</strong> Fitur distandarisasi menggunakan <code>StandardScaler</code> ($\mu=0, \sigma=1$).</li>
+                <li><strong>Arsitektur Jaringan:</strong> <em>Input Layer</em> (8 neuron), <strong>2 Hidden Layers (64 neuron & 32 neuron)</strong>, <em>Output Layer</em>.</li>
+                <li><strong>Aktivasi & Optimasi:</strong> ReLU pada hidden layers, algoritma <strong>Adam</strong> (konvergen dalam {{ metrics.n_iterations }} epoch), serta aktivasi Sigmoid di layer akhir.</li>
+            </ul>
+        </div>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+</html>
